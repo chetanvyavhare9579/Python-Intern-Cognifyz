@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head><title>Patient Details</title></head>
+<body>
+    <h1>Patient: {{ name }}</h1>
+    <p><b>Doctor:</b> {{ patient['doctor'] }}</p>
+    <p><b>Disease:</b> {{ patient['disease'] }}</p>
+    <p><b>Medicines:</b> {{ patient['medicines']|join(", ") }}</p>
+    <p><b>Tests Required:</b> {{ patient['tests'] }}</p>
+
+    <h2>Vitals</h2>
+    <ul>
+        {% for v in patient['vitals'] %}
+        <li>BP: {{ v['bp_sys'] }}/{{ v['bp_dia'] }}, Pulse: {{ v['pulse'] }}, Risk: {{ v['risk'] }}</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Add Vitals</h3>
+    <form method="post">
+        BP Sys: <input type="number" name="bp_sys" required><br><br>
+        BP Dia: <input type="number" name="bp_dia" required><br><br>
+        Pulse: <input type="number" name="pulse" required><br><br>
+        <button type="submit">Update Vitals</button>
+    </form>
+
+    <br><a href="{{ url_for('index') }}">⬅ Back</a>
+</body>
+</html>

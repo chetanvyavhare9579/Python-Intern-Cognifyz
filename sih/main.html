@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeQuest | Gamified Learning for Engineers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        /* DASHBOARD STYLES */
+        .sidebar {
+            transition: all 0.3s;
+        }
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        .badge-card:hover {
+            transform: scale(1.05);
+        }
+        .module-item:hover {
+            background-color: #f5f3ff;
+        }
+        .active-tab {
+            border-bottom: 3px solid #4f46e5;
+            color: #4f46e5;
+        }
+
+        /* LANDING PAGE STYLES */
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .language-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        /* Dashboard layout helper classes */
+        .dashboard-layout .main-wrapper {
+            margin-left: 16rem; /* md:ml-64 */
+        }
+        .dashboard-layout .sidebar {
+            display: block !important;
+        }
+        .dashboard-layout .mobile-header {
+            display: flex !important;
+        }
+        .dashboard-layout .top-bar {
+            display: flex !important;
+        }
+        .landing-layout .main-wrapper {
+            margin-left: 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full" data-aos="zoom-in">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Welcome to CodeQuest</h2>
+                <button onclick="toggleLoginModal()" class="text-gray-500 hover:text-gray-700">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            <form>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2" for="email">Email</label>
+                    <input type="email" id="email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 mb-2" for="password">Password</label>
+                    <input type="password" id="password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <button type="button" onclick="loginAndRedirect()" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-300 mb-4">
+                    Login
+                </button>
+                <div class="text-center">
+                    <a href="#" class="text-indigo-600 hover:underline">Forgot password?</a>
+                    <p class="text-gray-600 mt-2">Don't have an account? <a href="#" class="text-indigo-600 hover:underline">Sign up</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="appContainer" class="flex h-screen">
+
+        <div id="sidebar" class="sidebar bg-indigo-800 text-white w-64 space-y-6 py-7 px-2 fixed inset-y-0 left-0 transform -translate-x-full md:translate-x-0 transition duration-200 ease-in-out z-50 hidden md:block">
+            <div class="text-white flex items-center space-x-2 px-4 cursor-pointer" id="sidebarLogo">
+                <i data-feather="code" class="w-8 h-8"></i>
+                <span class="text-2xl font-extrabold">CodeQuest</span>
+            </div>
+            <nav>
+                <a href="#dashboard" class="nav-link flex items-center space-x-2 py-2 px-4 text-indigo-200 hover:bg-indigo-700 rounded-lg transition duration-200" data-view="dashboard">
+                    <i data-feather="home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#languages" class="nav-link flex items-center space-x-2 py-2 px-4 text-indigo-200 hover:bg-indigo-700 rounded-lg transition duration-200" data-view="languages">
+                    <i data-feather="book"></i>
+                    <span>Languages</span>
+                </a>
+                <a href="#games" class="nav-link flex items-center space-x-2 py-2 px-4 text-indigo-200 hover:bg-indigo-700 rounded-lg transition duration-200" data-view="games">
+                    <i data-feather="cpu"></i>
+                    <span>Games & Quizzes</span>
+                </a>
+                <a href="#badges" class="nav-link flex items-center space-x-2 py-2 px-4 text-indigo-200 hover:bg-indigo-700 rounded-lg transition duration-200" data-view="badges">
+                    <i data-feather="award"></i>
+                    <span>Badges</span>
+                </a>
+                <a href="#progress" class="nav-link flex items-center space-x-2 py-2 px-4 text-indigo-200 hover:bg-indigo-700 rounded-lg transition duration-200" data-view="progress">
+                    <i data-feather="bar-chart-2"></i>
+                    <span>Progress</span>
+                </a>
+                <a href="#community" class="nav-link flex items-center space-x-2 py-2 px-4 text-indigo-200 hover:bg-indigo-700 rounded-lg transition duration-200" data-view="community">
+                    <i data-feather="users"></i>
+                    <span>Community</span>
+                </a>
+                <a href="#settings" class="nav-link flex items-center space-x-2 py-2 px-4 text-indigo-200 hover:bg-indigo-700 rounded-lg transition duration-200" data-view="settings">
+                    <i data-feather="settings"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </div>
+
+        <div id="mobileHeader" class="mobile-header md:hidden fixed w-full bg-white shadow-sm py-4 px-6 justify-between items-center z-40 hidden">
+            <button id="menuBtn" class="text-gray-700">
+                <i data-feather="menu"></i>
+            </button>
+            <div class="text-indigo-700 flex items-center space-x-2 cursor-pointer" id="mobileLogo">
+                <i data-feather="code" class="w-6 h-6"></i>
+                <span class="text-xl font-bold">CodeQuest</span>
+            </div>
+            <div class="w-6"></div> </div>
+
+        <div id="mainWrapper" class="main-wrapper flex-1 w-full">
+
+            <div id="topBar" class="top-bar bg-white shadow-sm py-4 px-6 justify-between items-center sticky top-0 z-30 hidden">
+                </div>
+
+            <main class="p-0" id="mainContent">
+                </main>
+        </div>
+    </div>
+
+    <template id="landing-view">
+        <div>
+            <div class="gradient-bg text-white">
+                <div class="container mx-auto px-6 py-24">
+                    <div class="flex flex-col md:flex-row items-center">
+                        <div class="md:w-1/2 mb-10 md:mb-0" data-aos="fade-right">
+                            <h1 class="text-4xl md:text-6xl font-bold mb-6">Level Up Your Coding Skills</h1>
+                            <p class="text-xl mb-8">Earn coins, unlock badges, and compete with peers in our gamified learning environment for engineers.</p>
+                            <button onclick="toggleLoginModal()" class="bg-white text-indigo-700 font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition duration-300">
+                                Get Started
+                            </button>
+                        </div>
+                        <div class="md:w-1/2" data-aos="fade-left">
+                            <img src="http://static.photos/technology/1024x576/42" alt="Coding Illustration" class="rounded-lg shadow-2xl">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container mx-auto px-6 py-16">
+                <div class="text-center mb-16" data-aos="fade-up">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-4">Choose Your Programming Language</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">Master any language and earn rewards as you progress through our structured learning paths.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="language-card bg-white rounded-xl shadow-md overflow-hidden transition duration-300" data-aos="fade-up" data-aos-delay="100">
+                        <img src="http://static.photos/technology/640x360/1" alt="Python" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-xl font-bold text-gray-800">Python</h3>
+                                <span class="flex items-center text-yellow-500">
+                                    <i data-feather="star" class="mr-1"></i> 4.8
+                                </span>
+                            </div>
+                            <p class="text-gray-600 mb-4">Learn Python from basics to advanced concepts with interactive exercises.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="flex items-center text-indigo-600 text-sm">
+                                    <i data-feather="book" class="mr-2 w-4 h-4"></i> 12 Modules
+                                </span>
+                                <span class="flex items-center text-green-500 text-sm">
+                                    <i data-feather="award" class="mr-2 w-4 h-4"></i> 500 Coins
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="language-card bg-white rounded-xl shadow-md overflow-hidden transition duration-300" data-aos="fade-up" data-aos-delay="200">
+                        <img src="http://static.photos/technology/640x360/2" alt="JavaScript" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-xl font-bold text-gray-800">JavaScript</h3>
+                                <span class="flex items-center text-yellow-500">
+                                    <i data-feather="star" class="mr-1"></i> 4.7
+                                </span>
+                            </div>
+                            <p class="text-gray-600 mb-4">Master modern JavaScript and frameworks with hands-on projects.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="flex items-center text-indigo-600 text-sm">
+                                    <i data-feather="book" class="mr-2 w-4 h-4"></i> 15 Modules
+                                </span>
+                                <span class="flex items-center text-green-500 text-sm">
+                                    <i data-feather="award" class="mr-2 w-4 h-4"></i> 600 Coins
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="language-card bg-white rounded-xl shadow-md overflow-hidden transition duration-300" data-aos="fade-up" data-aos-delay="300">
+                        <img src="http://static.photos/technology/640x360/3" alt="Java" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-xl font-bold text-gray-800">Java</h3>
+                                <span class="flex items-center text-yellow-500">
+                                    <i data-feather="star" class="mr-1"></i> 4.5
+                                </span>
+                            </div>
+                            <p class="text-gray-600 mb-4">Build robust applications with Java and learn OOP principles.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="flex items-center text-indigo-600 text-sm">
+                                    <i data-feather="book" class="mr-2 w-4 h-4"></i> 10 Modules
+                                </span>
+                                <span class="flex items-center text-green-500 text-sm">
+                                    <i data-feather="award" class="mr-2 w-4 h-4"></i> 450 Coins
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="language-card bg-white rounded-xl shadow-md overflow-hidden transition duration-300" data-aos="fade-up" data-aos-delay="400">
+                        <img src="http://static.photos/technology/640x360/4" alt="C++" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-xl font-bold text-gray-800">C++</h3>
+                                <span class="flex items-center text-yellow-500">
+                                    <i data-feather="star" class="mr-1"></i> 4.6
+                                </span>
+                            </div>
+                            <p class="text-gray-600 mb-4">Learn systems programming with C++ and solve complex problems.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="flex items-center text-indigo-600 text-sm">
+                                    <i data-feather="book" class="mr-2 w-4 h-4"></i> 8 Modules
+                                </span>
+                                <span class="flex items-center text-green-500 text-sm">
+                                    <i data-feather="award" class="mr-2 w-4 h-4"></i> 400 Coins
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-12">
+                    <button onclick="toggleLoginModal()" class="bg-indigo-600 text-white py-3 px-8 rounded-lg hover:bg-indigo-700 transition duration-300 inline-flex items-center">
+                        <i data-feather="lock" class="mr-2"></i> Login to Explore All Languages
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-gray-100 py-16">
+                <div class="container mx-auto px-6">
+                    <div class="text-center mb-16" data-aos="fade-up">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Why Choose CodeQuest?</h2>
+                        <p class="text-gray-600 max-w-2xl mx-auto">Our gamified approach makes learning to code engaging and rewarding.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="bg-white p-8 rounded-xl shadow-md text-center" data-aos="fade-up" data-aos-delay="100">
+                            <div class="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <i data-feather="book-open" class="text-indigo-600 w-8 h-8"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-3">Comprehensive Materials</h3>
+                            <p class="text-gray-600">Access PDFs, PPTs, and interactive tutorials for each programming language.</p>
+                        </div>
+
+                        <div class="bg-white p-8 rounded-xl shadow-md text-center" data-aos="fade-up" data-aos-delay="200">
+                            <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <i data-feather="award" class="text-green-600 w-8 h-8"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-3">Earn Rewards</h3>
+                            <p class="text-gray-600">Collect coins and badges as you complete modules and challenges.</p>
+                        </div>
+
+                        <div class="bg-white p-8 rounded-xl shadow-md text-center" data-aos="fade-up" data-aos-delay="300">
+                            <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <i data-feather="cpu" class="text-purple-600 w-8 h-8"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-3">Interactive Games</h3>
+                            <p class="text-gray-600">Test your knowledge with coding challenges, quizzes, and algorithm games.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="gradient-bg text-white py-16">
+                <div class="container mx-auto px-6 text-center">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6" data-aos="fade-up">Ready to Start Your Coding Journey?</h2>
+                    <p class="text-xl mb-8 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="100">Join thousands of engineers who are leveling up their skills with CodeQuest.</p>
+                    <button onclick="toggleLoginModal()" class="bg-white text-indigo-700 font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition duration-300 inline-flex items-center" data-aos="fade-up" data-aos-delay="200">
+                        <i data-feather="user-plus" class="mr-2"></i> Create Free Account
+                    </button>
+                </div>
+            </div>
+
+            <footer class="bg-gray-800 text-white py-12">
+                <div class="container mx-auto px-6">
+                    <div class="flex flex-col md:flex-row justify-between">
+                        <div class="mb-8 md:mb-0">
+                            <h3 class="text-xl font-bold mb-4">CodeQuest</h3>
+                            <p class="text-gray-400 max-w-xs">Gamified coding and skill development environment for engineers.</p>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
+                            <div>
+                                <h4 class="font-bold mb-4">Explore</h4>
+                                <ul class="space-y-2">
+                                    <li><a href="#languages" class="text-gray-400 hover:text-white nav-link">Languages</a></li>
+                                    <li><a href="#progress" class="text-gray-400 hover:text-white nav-link">Learning Paths</a></li>
+                                    <li><a href="#games" class="text-gray-400 hover:text-white nav-link">Games</a></li>
+                                    <li><a href="#" class="text-gray-400 hover:text-white">Leaderboard</a></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-bold mb-4">Company</h4>
+                                <ul class="space-y-2">
+                                    <li><a href="#" class="text-gray-400 hover:text-white">About</a></li>
+                                    <li><a href="#" class="text-gray-400 hover:text-white">Careers</a></li>
+                                    <li><a href="#" class="text-gray-400 hover:text-white">Blog</a></li>
+                                    <li><a href="#" class="text-gray-400 hover:text-white">Contact</a></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-bold mb-4">Legal</h4>
+                                <ul class="space-y-2">
+                                    <li><a href="#" class="text-gray-400 hover:text-white">Privacy</a></li>
+                                    <li><a href="#" class="text-gray-400 hover:text-white">Terms</a></li>
+                                    <li><a href="#" class="text-gray-400 hover:text-white">Cookie Policy</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border-t border-gray-700 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+                        <p class="text-gray-400 mb-4 md:mb-0">© 2023 CodeQuest. All rights reserved.</p>
+                        <div class="flex space-x-6">
+                            <a href="#" class="text-gray-400 hover:text-white"><i data-feather="twitter"></i></a>
+                            <a href="#" class="text-gray-400 hover:text-white"><i data-feather="facebook"></i></a>
+                            <a href="#" class="text-gray-400 hover:text-white"><i data-feather="linkedin"></i></a>
+                            <a href="#" class="text-gray-400 hover:text-white"><i data-feather="github"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </template>
+
+    <template id="dashboard-view">
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-md p-6" data-aos="fade-up">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-gray-500">Total Coins</p>
+                            <h3 class="text-3xl font-bold text-indigo-600">1,250</h3>
+                        </div>
+                        <div class="bg-indigo-100 p-3 rounded-full">
+                            <i data-feather="dollar-sign" class="text-indigo-600 w-6 h-6"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-md p-6" data-aos="fade-up" data-aos-delay="100">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-gray-500">Current Streak</p>
+                            <h3 class="text-3xl font-bold text-green-600">7 days</h3>
+                        </div>
+                        <div class="bg-green-100 p-3 rounded-full">
+                            <i data-feather="zap" class="text-green-600 w-6 h-6"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-md p-6" data-aos="fade-up" data-aos-delay="200">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-gray-500">Badges Earned</p>
+                            <h3 class="text-3xl font-bold text-yellow-600">5</h3>
+                        </div>
+                        <div class="bg-yellow-100 p-3 rounded-full">
+                            <i data-feather="award" class="text-yellow-600 w-6 h-6"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-md p-6" data-aos="fade-up" data-aos-delay="300">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-gray-500">Leaderboard Rank</p>
+                            <h3 class="text-3xl font-bold text-purple-600">#42</h3>
+                        </div>
+                        <div class="bg-purple-100 p-3 rounded-full">
+                            <i data-feather="trending-up" class="text-purple-600 w-6 h-6"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-md p-6 lg:col-span-2" data-aos="fade-up">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-gray-800">Current Course: Python Basics</h2>
+                        <span class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded">In Progress</span>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex justify-between text-sm text-gray-600 mb-1">
+                            <span>Progress</span>
+                            <span>65%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-indigo-600 h-2.5 rounded-full" style="width: 65%"></div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 mt-6">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-indigo-600">3</div>
+                            <div class="text-sm text-gray-500">Modules Completed</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-indigo-600">5</div>
+                            <div class="text-sm text-gray-500">Exercises Done</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-indigo-600">250</div>
+                            <div class="text-sm text-gray-500">Coins Earned</div>
+                        </div>
+                    </div>
+                    <a href="#languages/python" class="w-full block text-center mt-6 bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-300">
+                        Continue Learning
+                    </a>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md p-6" data-aos="fade-up" data-aos-delay="100">
+                    <h2 class="text-xl font-bold text-gray-800 mb-6">Weekly Progress</h2>
+                    <div class="flex justify-center">
+                        <svg width="160" height="160" viewBox="0 0 160 160">
+                            <circle cx="80" cy="80" r="70" fill="none" stroke="#e5e7eb" stroke-width="12"></circle>
+                            <circle cx="80" cy="80" r="70" fill="none" stroke="#4f46e5" stroke-width="12" stroke-dasharray="440" stroke-dashoffset="176" class="progress-ring__circle"></circle>
+                            <text x="80" y="85" text-anchor="middle" font-size="24" font-weight="bold" fill="#4f46e5">60%</text>
+                        </svg>
+                    </div>
+                    <div class="mt-6 text-center">
+                        <p class="text-gray-600">You've completed 60% of your weekly goal</p>
+                        <button class="mt-4 text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                            Adjust Goal
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md p-6 mb-8" data-aos="fade-up">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">Recent Badges</h2>
+                    <a href="#badges" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">View All</a>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                    <div class="badge-card bg-yellow-50 rounded-lg p-4 text-center transition duration-300">
+                        <div class="bg-yellow-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <i data-feather="award" class="text-yellow-600 w-8 h-8"></i>
+                        </div>
+                        <h3 class="font-medium text-gray-800">Fast Learner</h3>
+                        <p class="text-xs text-gray-500">Earned 2 days ago</p>
+                    </div>
+                    <div class="badge-card bg-blue-50 rounded-lg p-4 text-center transition duration-300">
+                        <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <i data-feather="check-circle" class="text-blue-600 w-8 h-8"></i>
+                        </div>
+                        <h3 class="font-medium text-gray-800">First Quiz</h3>
+                        <p class="text-xs text-gray-500">Earned 5 days ago</p>
+                    </div>
+                    <div class="badge-card bg-green-50 rounded-lg p-4 text-center transition duration-300">
+                        <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <i data-feather="zap" class="text-green-600 w-8 h-8"></i>
+                        </div>
+                        <h3 class="font-medium text-gray-800">3-Day Streak</h3>
+                        <p class="text-xs text-gray-500">Earned 1 week ago</p>
+                    </div>
+                    <div class="badge-card bg-purple-50 rounded-lg p-4 text-center transition duration-300">
+                        <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <i data-feather="book" class="text-purple-600 w-8 h-8"></i>
+                        </div>
+                        <h3 class="font-medium text-gray-800">Module Master</h3>
+                        <p class="text-xs text-gray-500">Earned 2 weeks ago</p>
+                    </div>
+                    <div class="badge-card bg-red-50 rounded-lg p-4 text-center transition duration-300">
+                        <div class="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <i data-feather="star" class="text-red-600 w-8 h-8"></i>
+                        </div>
+                        <h3 class="font-medium text-gray-800">Top 100</h3>
+                        <p class="text-xs text-gray-500">Earned 3 weeks ago</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md p-6" data-aos="fade-up">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">Recommended For You</h2>
+                    <a href="#languages" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">Browse All</a>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <a href="#languages/python-oop" class="border rounded-lg overflow-hidden hover:shadow-md transition duration-300">
+                        <img src="http://static.photos/technology/640x360/5" alt="Python OOP" class="w-full h-40 object-cover">
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">Python OOP Concepts</h3>
+                            <p class="text-gray-600 text-sm mb-3">Master object-oriented programming in Python with interactive exercises.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-gray-500">3 Modules</span>
+                                <span class="flex items-center text-yellow-500 text-sm">
+                                    <i data-feather="star" class="w-4 h-4 mr-1"></i> 4.7
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="#languages/javascript-games" class="border rounded-lg overflow-hidden hover:shadow-md transition duration-300">
+                        <img src="http://static.photos/technology/640x360/6" alt="JavaScript Games" class="w-full h-40 object-cover">
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">Build JavaScript Games</h3>
+                            <p class="text-gray-600 text-sm mb-3">Create 5 classic games while learning advanced JavaScript.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-gray-500">5 Projects</span>
+                                <span class="flex items-center text-yellow-500 text-sm">
+                                    <i data-feather="star" class="w-4 h-4 mr-1"></i> 4.9
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="#games" class="border rounded-lg overflow-hidden hover:shadow-md transition duration-300">
+                        <img src="http://static.photos/technology/640x360/7" alt="Algorithm Challenges" class="w-full h-40 object-cover">
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">Algorithm Challenges</h3>
+                            <p class="text-gray-600 text-sm mb-3">Solve 50+ algorithm problems and improve your problem-solving skills.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-gray-500">50 Challenges</span>
+                                <span class="flex items-center text-yellow-500 text-sm">
+                                    <i data-feather="star" class="w-4 h-4 mr-1"></i> 4.8
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="languages-view">
+        <div class="p-6">
+            <div class="bg-white rounded-xl shadow-md p-6 mb-8" data-aos="fade-up">
+                <div class="flex overflow-x-auto pb-2 mb-6">
+                    <button class="px-4 py-2 font-medium text-gray-600 hover:text-indigo-600 whitespace-nowrap active-tab">
+                        All Languages
+                    </button>
+                    <button class="px-4 py-2 font-medium text-gray-600 hover:text-indigo-600 whitespace-nowrap">
+                        In Progress
+                    </button>
+                    <button class="px-4 py-2 font-medium text-gray-600 hover:text-indigo-600 whitespace-nowrap">
+                        Completed
+                    </button>
+                    <button class="px-4 py-2 font-medium text-gray-600 hover:text-indigo-600 whitespace-nowrap">
+                        Popular
+                    </button>
+                    <button class="px-4 py-2 font-medium text-gray-600 hover:text-indigo-600 whitespace-nowrap">
+                        New
+                    </button>
+                </div>
+
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+                    <div class="relative w-full md:w-64 mb-4 md:mb-0">
+                        <input type="text" placeholder="Search languages..." class="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <i data-feather="search" class="absolute left-3 top-2.5 text-gray-400"></i>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="flex items-center px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-50">
+                            <i data-feather="filter" class="mr-2 w-4 h-4"></i>
+                            Filter
+                        </button>
+                        <button class="flex items-center px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-50">
+                            <i data-feather="bar-chart-2" class="mr-2 w-4 h-4"></i>
+                            Sort
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+                <a href="#languages/python" class="language-card bg-white rounded-xl shadow-md overflow-hidden" data-aos="fade-up">
+                    <div class="relative">
+                        <img src="http://static.photos/technology/640x360/1" alt="Python" class="w-full h-40 object-cover">
+                        <div class="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                            In Progress
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-blue-100 p-3 rounded-full mr-4">
+                                <i data-feather="code" class="text-blue-600 w-6 h-6 language-icon transition duration-300"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800">Python</h3>
+                                <p class="text-gray-600">Beginner to Advanced</p>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                <span>Progress</span>
+                                <span>65%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-600 h-2 rounded-full" style="width: 65%"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">3/5 modules</span>
+                            <span class="flex items-center text-yellow-500 text-sm">
+                                <i data-feather="star" class="w-4 h-4 mr-1"></i> 4.8
+                            </span>
+                        </div>
+                        <button class="w-full mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300">
+                            Continue Learning
+                        </button>
+                    </div>
+                </a>
+
+                <a href="#languages/javascript" class="language-card bg-white rounded-xl shadow-md overflow-hidden" data-aos="fade-up" data-aos-delay="100">
+                    <div class="relative">
+                        <img src="http://static.photos/technology/640x360/2" alt="JavaScript" class="w-full h-40 object-cover">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-yellow-100 p-3 rounded-full mr-4">
+                                <i data-feather="code" class="text-yellow-600 w-6 h-6 language-icon transition duration-300"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800">JavaScript</h3>
+                                <p class="text-gray-600">Frontend Mastery</p>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                <span>Progress</span>
+                                <span>0%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">0/8 modules</span>
+                            <span class="flex items-center text-yellow-500 text-sm">
+                                <i data-feather="star" class="w-4 h-4 mr-1"></i> 4.7
+                            </span>
+                        </div>
+                        <button class="w-full mt-4 bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600 transition duration-300">
+                            Start Learning
+                        </button>
+                    </div>
+                </a>
+
+                <a href="#languages/java" class="language-card bg-white rounded-xl shadow-md overflow-hidden" data-aos="fade-up" data-aos-delay="200">
+                    <div class="relative">
+                        <img src="http://static.photos/technology/640x360/3" alt="Java" class="w-full h-40 object-cover">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-red-100 p-3 rounded-full mr-4">
+                                <i data-feather="code" class="text-red-600 w-6 h-6 language-icon transition duration-300"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800">Java</h3>
+                                <p class="text-gray-600">OOP Fundamentals</p>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                <span>Progress</span>
+                                <span>0%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-red-500 h-2 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">0/6 modules</span>
+                            <span class="flex items-center text-yellow-500 text-sm">
+                                <i data-feather="star" class="w-4 h-4 mr-1"></i> 4.5
+                            </span>
+                        </div>
+                        <button class="w-full mt-4 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition duration-300">
+                            Start Learning
+                        </button>
+                    </div>
+                </a>
+
+                <a href="#languages/cpp" class="language-card bg-white rounded-xl shadow-md overflow-hidden" data-aos="fade-up" data-aos-delay="300">
+                    <div class="relative">
+                        <img src="http://static.photos/technology/640x360/4" alt="C++" class="w-full h-40 object-cover">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-purple-100 p-3 rounded-full mr-4">
+                                <i data-feather="code" class="text-purple-600 w-6 h-6 language-icon transition duration-300"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800">C++</h3>
+                                <p class="text-gray-600">Systems Programming</p>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                <span>Progress</span>
+                                <span>0%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-purple-500 h-2 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">0/7 modules</span>
+                            <span class="flex items-center text-yellow-500 text-sm">
+                                <i data-feather="star" class="w-4 h-4 mr-1"></i> 4.6
+                            </span>
+                        </div>
+                        <button class="w-full mt-4 bg-purple-500 text-white py-2 px-4 rounded-lg hover:bg-purple-600 transition duration-300">
+                            Start Learning
+                        </button>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </template>
+
+    <template id="python-details-view">
+        <div class="p-6">
+            <div class="bg-white rounded-xl shadow-md p-6 mb-8" data-aos="fade-up">
+                <div class="flex items-center mb-6">
+                    <div class="bg-blue-100 p-4 rounded-full mr-4">
+                        <i data-feather="code" class="text-blue-600 w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Python Programming</h2>
+                        <p class="text-gray-600">Master Python from basics to advanced concepts</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row mb-6">
+                    <div class="md:w-2/3 mb-6 md:mb-0">
+                        <p class="text-gray-700 mb-4">Python is a versatile and beginner-friendly programming language used in web development, data science, AI, and more. This comprehensive course will take you from Python basics to advanced concepts through interactive exercises and real-world projects.</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">Beginner Friendly</span>
+                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">65% Complete</span>
+                            <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded">250 Coins</span>
+                            <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">3 Badges</span>
+                        </div>
+                    </div>
+                    <div class="md:w-1/3 md:pl-6">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-bold text-gray-800 mb-2">Course Details</h3>
+                            <div class="flex justify-between py-2 border-b border-gray-200">
+                                <span class="text-gray-600">Modules</span>
+                                <span class="font-medium">5</span>
+                            </div>
+                            <div class="flex justify-between py-2 border-b border-gray-200">
+                                <span class="text-gray-600">Duration</span>
+                                <span class="font-medium">20 hours</span>
+                            </div>
+                            <div class="flex justify-between py-2 border-b border-gray-200">
+                                <span class="text-gray-600">Difficulty</span>
+                                <span class="font-medium">Beginner</span>
+                            </div>
+                            <div class="flex justify-between py-2">
+                                <span class="text-gray-600">Rating</span>
+                                <span class="flex items-center text-yellow-500">
+                                    <i data-feather="star" class="w-4 h-4 mr-1"></i> 4.8
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Modules</h3>
+                    <div class="space-y-2">
+                        <a href="#" class="module-item p-4 border rounded-lg flex items-center justify-between hover:shadow-sm transition duration-200">
+                            <div class="flex items-center">
+                                <div class="bg-blue-100 p-2 rounded-full mr-4">
+                                    <i data-feather="check-circle" class="text-green-500 w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">1. Python Basics</h4>
+                                    <p class="text-sm text-gray-600">Variables, Data Types, Operators</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-green-500 text-sm font-medium mr-4">Completed</span>
+                                <span class="text-blue-600 text-sm font-medium">+50 coins</span>
+                            </div>
+                        </a>
+
+                        <a href="#" class="module-item p-4 border rounded-lg flex items-center justify-between hover:shadow-sm transition duration-200">
+                            <div class="flex items-center">
+                                <div class="bg-blue-100 p-2 rounded-full mr-4">
+                                    <i data-feather="check-circle" class="text-green-500 w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">2. Control Flow</h4>
+                                    <p class="text-sm text-gray-600">Conditionals, Loops, Functions</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-green-500 text-sm font-medium mr-4">Completed</span>
+                                <span class="text-blue-600 text-sm font-medium">+50 coins</span>
+                            </div>
+                        </a>
+
+                        <a href="#" class="module-item p-4 border rounded-lg flex items-center justify-between hover:shadow-sm transition duration-200">
+                            <div class="flex items-center">
+                                <div class="bg-blue-100 p-2 rounded-full mr-4">
+                                    <i data-feather="check-circle" class="text-green-500 w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">3. Data Structures</h4>
+                                    <p class="text-sm text-gray-600">Lists, Tuples, Dictionaries, Sets</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-green-500 text-sm font-medium mr-4">Completed</span>
+                                <span class="text-blue-600 text-sm font-medium">+50 coins</span>
+                            </div>
+                        </a>
+
+                        <a href="#" class="module-item p-4 border rounded-lg flex items-center justify-between hover:shadow-sm transition duration-200 bg-indigo-50">
+                            <div class="flex items-center">
+                                <div class="bg-blue-100 p-2 rounded-full mr-4">
+                                    <i data-feather="book" class="text-blue-500 w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">4. Object-Oriented Programming</h4>
+                                    <p class="text-sm text-gray-600">Classes, Objects, Inheritance</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-blue-500 text-sm font-medium mr-4">In Progress</span>
+                                <span class="text-blue-600 text-sm font-medium">+100 coins</span>
+                            </div>
+                        </a>
+
+                        <a href="#" class="module-item p-4 border rounded-lg flex items-center justify-between hover:shadow-sm transition duration-200">
+                            <div class="flex items-center">
+                                <div class="bg-blue-100 p-2 rounded-full mr-4">
+                                    <i data-feather="lock" class="text-gray-400 w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">5. Advanced Topics</h4>
+                                    <p class="text-sm text-gray-600">Decorators, Generators, Context Managers</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-gray-500 text-sm font-medium mr-4">Locked</span>
+                                <span class="text-blue-600 text-sm font-medium">+150 coins</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Study Materials</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="border rounded-lg p-4 hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center mb-2">
+                                <i data-feather="file-text" class="text-red-500 mr-2"></i>
+                                <h4 class="font-medium">Python Basics PDF</h4>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3">Comprehensive guide covering all Python fundamentals</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-gray-500">25 pages</span>
+                                <button class="text-blue-600 text-sm hover:underline">Download</button>
+                            </div>
+                        </div>
+                        <div class="border rounded-lg p-4 hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center mb-2">
+                                <i data-feather="file-text" class="text-blue-500 mr-2"></i>
+                                <h4 class="font-medium">OOP Concepts PPT</h4>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3">Slides explaining Object-Oriented Programming in Python</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-gray-500">45 slides</span>
+                                <button class="text-blue-600 text-sm hover:underline">Download</button>
+                            </div>
+                        </div>
+                        <div class="border rounded-lg p-4 hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center mb-2">
+                                <i data-feather="file-text" class="text-green-500 mr-2"></i>
+                                <h4 class="font-medium">Python Cheat Sheet</h4>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3">Quick reference for Python syntax and common operations</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-gray-500">10 pages</span>
+                                <button class="text-blue-600 text-sm hover:underline">Download</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-center">
+                    <button class="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition duration-300">
+                        Continue to Module 4
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+
+    <script>
+        const VIEWS = {
+            // Landing page is the default view
+            '': {
+                title: 'CodeQuest: Gamified Learning',
+                template: 'landing-view',
+                isAuth: false,
+                user: { name: 'Guest', image: '' }
+            },
+            // Authenticated views
+            'dashboard': {
+                title: 'Dashboard',
+                template: 'dashboard-view',
+                isAuth: true,
+                user: { name: 'Priya Patil', image: 'http://static.photos/people/200x200/1' }
+            },
+            'languages': {
+                title: 'Programming Languages',
+                template: 'languages-view',
+                isAuth: true,
+                user: { name: 'Priya Patil', image: 'http://static.photos/people/200x200/1' }
+            },
+            'languages/python': {
+                title: 'Python Programming Course',
+                template: 'python-details-view',
+                isAuth: true,
+                user: { name: 'Priya Patil', image: 'http://static.photos/people/200x200/1' }
+            },
+            // Fallback/Placeholder views for sidebar items
+            'games': { title: 'Games & Quizzes', template: 'dashboard-view', isAuth: true, user: { name: 'Priya Patil', image: 'http://static.photos/people/200x200/1' } },
+            'badges': { title: 'Badges', template: 'dashboard-view', isAuth: true, user: { name: 'Priya Patil', image: 'http://static.photos/people/200x200/1' } },
+            'progress': { title: 'Progress', template: 'dashboard-view', isAuth: true, user: { name: 'Priya Patil', image: 'http://static.photos/people/200x200/1' } },
+            'community': { title: 'Community', template: 'dashboard-view', isAuth: true, user: { name: 'Priya Patil', image: 'http://static.photos/people/200x200/1' } },
+            'settings': { title: 'Settings', template: 'dashboard-view', isAuth: true, user: { name: 'Priya Patil', image: 'http://static.photos/people/200x200/1' } },
+        };
+
+        const body = document.body;
+        const mainContent = document.getElementById('mainContent');
+        const topBar = document.getElementById('topBar');
+        const sidebar = document.getElementById('sidebar');
+        const mobileHeader = document.getElementById('mobileHeader');
+        const mainWrapper = document.getElementById('mainWrapper');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sidebarLogo = document.getElementById('sidebarLogo');
+        const mobileLogo = document.getElementById('mobileLogo');
+
+        function toggleLoginModal() {
+            const modal = document.getElementById('loginModal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) {
+                 feather.replace();
+            }
+        }
+
+        function loginAndRedirect() {
+            // 1. Simulate login (closes modal)
+            toggleLoginModal();
+            // 2. Navigate to dashboard (triggers renderView('#dashboard'))
+            window.location.hash = '#dashboard';
+        }
+
+        function goToDashboard() {
+             // This is explicitly for the logo click on an authenticated page
+             window.location.hash = '#dashboard';
+        }
+
+        function renderView(viewKey) {
+            let view = VIEWS[viewKey];
+            if (!view) {
+                viewKey = ''; // Default to landing page
+                view = VIEWS[viewKey];
+            }
+
+            // --- 1. Toggle UI Layout (Show/Hide Sidebar and Dashboard elements) ---
+            if (view.isAuth) {
+                // DASHBOARD LAYOUT
+                body.classList.add('dashboard-layout');
+                body.classList.remove('landing-layout');
+
+                // Show Sidebar/TopBar elements
+                sidebar.classList.remove('hidden');
+                mobileHeader.classList.remove('hidden');
+                topBar.classList.add('flex');
+                topBar.classList.remove('hidden');
+                mainWrapper.classList.add('md:ml-64');
+
+                // Set padding for main content
+                mainContent.classList.add('p-6');
+                mainContent.classList.remove('p-0');
+
+                // --- 2. Update Sidebar Active State ---
+                const baseRoute = viewKey.split('/')[0];
+                navLinks.forEach(link => {
+                    link.classList.remove('bg-indigo-900', 'text-white');
+                    link.classList.add('text-indigo-200', 'hover:bg-indigo-700');
+                    if (link.getAttribute('data-view') === baseRoute) {
+                        link.classList.add('bg-indigo-900', 'text-white');
+                        link.classList.remove('text-indigo-200', 'hover:bg-indigo-700');
+                    }
+                });
+
+                // --- 3. Render Top Bar ---
+                topBar.innerHTML = `
+                    <h1 class="text-2xl font-bold text-gray-800">${view.title}</h1>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <i data-feather="bell" class="text-gray-600 hover:text-indigo-600 cursor-pointer"></i>
+                            <span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <img src="${view.user.image}" alt="User" class="w-8 h-8 rounded-full">
+                            <span class="font-medium">${view.user.name}</span>
+                        </div>
+                    </div>
+                `;
+
+            } else {
+                // LANDING PAGE LAYOUT
+                body.classList.remove('dashboard-layout');
+                body.classList.add('landing-layout');
+
+                // Hide Sidebar/TopBar elements
+                sidebar.classList.add('hidden');
+                mobileHeader.classList.add('hidden');
+                topBar.classList.remove('flex');
+                topBar.classList.add('hidden');
+                mainWrapper.classList.remove('md:ml-64');
+
+                // Remove padding for full-bleed landing page sections
+                mainContent.classList.add('p-0');
+                mainContent.classList.remove('p-6');
+            }
+
+
+            // --- 4. Render Main Content (View) ---
+            const template = document.getElementById(view.template);
+            if (template) {
+                mainContent.innerHTML = '';
+                mainContent.appendChild(template.content.cloneNode(true));
+            }
+
+            // --- 5. Final Initialization ---
+            feather.replace();
+            AOS.refreshHard();
+            document.documentElement.scrollTop = 0;
+            document.title = view.title;
+        }
+
+        function handleHashChange() {
+            const hash = window.location.hash.substring(1);
+            renderView(hash);
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', function() {
+            // Close modal when clicking outside
+            document.getElementById('loginModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    toggleLoginModal();
+                }
+            });
+
+            // Initialize AOS
+            AOS.init({
+                duration: 800,
+                easing: 'ease-in-out',
+                once: true
+            });
+
+            // Set up click listeners for the CodeQuest logo/name *after* the DOM is loaded
+            if (sidebarLogo) sidebarLogo.addEventListener('click', goToDashboard);
+            if (mobileLogo) mobileLogo.addEventListener('click', goToDashboard);
+
+
+            handleHashChange(); // Load initial view
+
+            // Toggle mobile menu for authenticated views
+            document.getElementById('menuBtn').addEventListener('click', function() {
+                const sidebar = document.querySelector('.sidebar');
+                sidebar.classList.toggle('-translate-x-full');
+            });
+
+            // Handle navigation via hash change
+            window.addEventListener('hashchange', handleHashChange);
+
+            // Listen for clicks on internal anchors within the main content
+            mainContent.addEventListener('click', (e) => {
+                const link = e.target.closest('a[href^="#"]');
+                if (link) {
+                    const href = link.getAttribute('href');
+                    const viewKey = href.substring(1);
+                    // Check if it's a known route
+                    if (VIEWS[viewKey] || VIEWS[viewKey.split('/')[0]]) {
+                        e.preventDefault();
+                        window.location.hash = viewKey;
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

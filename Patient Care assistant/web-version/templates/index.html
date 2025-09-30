@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Patient Health Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>🏥 Patient Health Assistant</h1>
+    <a href="{{ url_for('add_patient') }}">➕ Add Patient</a> |
+    <a href="{{ url_for('view_alerts') }}">⚠️ View Alerts</a>
+    <h2>Patients List</h2>
+    <ul>
+        {% for name, patient in patients.items() %}
+        <li>
+            <a href="{{ url_for('patient_details', name=name) }}">{{ name }}</a>
+            (Doctor: {{ patient['doctor'] }})
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
